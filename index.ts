@@ -1,30 +1,27 @@
 import express from 'express';
+import { getRepository } from 'typeorm';
+import { User } from './Entitiy/User';
 
-var app = express();
-
-const PORT = 5000;
-
+const app = express();
 app.use(express.json());
 
+app.post('/register', async (req, res) => {
+  const { username, password } = req.body;
 
-app.get('/Registeration', (req, res) => {
-    
-})
+  const userRepository = getRepository(User);
+  const user = new User();
+  user.username = username;
+  user.password = password;
 
-// error handler
-app.use((err: any, req: any, res: any, next: any) => {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
-
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
+  try {
+    await userRepository.save(user);
+    res.status(201).send('User registered successfully');
+  } catch (error) {
+    res.status(400).send('Unable to register user');
+  }
 });
 
-
+const PORT = 3000;
 app.listen(PORT, () => {
-  console.log(`App is listening on port ${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
 });
-
-export default app;
